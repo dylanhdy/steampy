@@ -1,4 +1,5 @@
 import json
+import re
 import urllib.parse
 from decimal import Decimal
 from http import HTTPStatus
@@ -220,3 +221,24 @@ class SteamMarket:
             self._steam_guard['identity_secret'], self._steam_guard['steamid'], self._session,
         )
         return con_executor.confirm_sell_listing(asset_id)
+
+    def get_item_nameid(self, item_hash_name: str, game: GameOptions) -> str:
+        url = SteamUrl.COMMUNITY_URL + "/market/listings/{}/{}".format(game.app_id, urllib.parse.quote(item_hash_name))
+        response = self._session.get(url)
+        if response.status_code != 200:
+            raise ApiException("There was a problem getting the item nameid. http code: %s" % response.status_code)
+        try:
+            nameid = re.search(r"Market_LoadOrderSpread\((.*?)\);", response.text).group(1).strip()
+        except:
+            raise ApiException("There was a problem parse nameid from html.")
+        return nameid
+
+    def fetch_item_orders(self, item_nameid: str, currency: Currency = Currency.USD) -> dict:
+        url = SteamUrl.COMMUNITY_URL + "/market/itemordershistogram"
+        params = {"country": "PL", "currency": currency.value, "language": "english", "item_nameid": item_nameid, "norender": 1}
+        response = self._session.get(url, params=params)
+        if response.status_code == 429:
+            raise TooManyRequests("You can fetch maximum 20 prices in 60s period")
+        if response.status_code != 200:
+            raise ApiException("There was a problem getting the item orders. http code: %s" % response.status_code)
+        return response.json()

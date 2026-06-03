@@ -313,7 +313,7 @@ Decline trade offer that **other** user sent to us.
 
 Cancel trade offer that **we** sent to other user.
 
-**get_my_inventory(game: GameOptions, merge: bool = True, count: int = 5000) -> dict**
+**get_my_inventory(game: GameOptions, merge: bool = True, count: int = 2000) -> dict**
 
 Using `SteamClient.login` method is required before usage
 
@@ -437,7 +437,7 @@ inventory_entry = {'7146788981': {'actions': [{
                       'type': 'Classified Rifle'}}
 ```
 
-**get_partner_inventory(partner_steam_id: str, game: GameOptions, merge: bool = True, count: int = 5000) -> dict**
+**get_partner_inventory(partner_steam_id: str, game: GameOptions, merge: bool = True, count: int = 2000) -> dict**
 
 Using `SteamClient.login` method is required before usage
 
